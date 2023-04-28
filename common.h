@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <math.h>
 
 #define K 24
 #define N_ITERATION   10
@@ -10,10 +11,9 @@
 
 
 // parameter for the precision of the classic algorithm 'with sampling'
-#define BATTERY_SAMPLING  (2000-160)    // maximum = BMAX-BMIN
+#define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
 // parameter for the precision of the new algorithm
-#define MAX_QUALITY_LVL 10              // maximum = 100 (it is related to the quality as a percentage)
-
+#define MAX_QUALITY_LVL 100             // maximum = 100 (it is related to the quality as a percentage)
 
 #define mAh_per_lvl      ((float)(BMAX-BMIN)/BATTERY_SAMPLING)
 #define level_to_mah(l)  short(ceil((l)*(mAh_per_lvl))+BMIN) 
@@ -53,7 +53,7 @@ void GenerateTasks(void)
 #ifdef CARFAGNA
     const float s = 100.0 / MAX_QUALITY_LVL;      // percentage point of quality for each level
     for (i=0; i<N_TASKS; i++)
-      tasks[i].q_lvl = floor( tasks[i].q_perc) / s );
+      tasks[i].q_lvl = floor( tasks[i].q_perc / s );
 #endif
 }
 
@@ -171,7 +171,9 @@ void PrintParameters(void) {
   //Serial.print(","); Serial.println(mah_to_level(BMAX));
   
   Serial.print(F("BSAMPLING = ")); Serial.println(BATTERY_SAMPLING);
-  Serial.print(F("EnergyForLevel = ")); Serial.println(mAh_per_lvl);  
+  Serial.print(F("EnergyForLevel = ")); Serial.println(mAh_per_lvl);
+  Serial.print(F("MAX_QUALITY_LVL = ")); Serial.println(MAX_QUALITY_LVL);
+    
   Serial.print(F("\nc_i = ["));
   for (i=0; i<N_TASKS; i++) {
     sprintf(buf,"%3d%c",tasks[i].c_mAh,(i==N_TASKS-1?']':','));
@@ -183,6 +185,16 @@ void PrintParameters(void) {
       sprintf(buf,"%3d%c",tasks[i].q_perc,(i==N_TASKS-1?']':','));
       Serial.print(buf);
   }
+  Serial.print("\n");
+#ifdef CARFAGNA  
+  Serial.print(F("l_i = ["));
+  for (i=0; i<N_TASKS; i++) {
+      sprintf(buf,"%3d%c",tasks[i].q_lvl,(i==N_TASKS-1?']':','));
+      Serial.print(buf);
+  }
+  Serial.print("\n");
+#endif
+  
   Serial.print(F("\ne_i = ["));
   for (i=0; i<24; i++) {
       sprintf(buf,"%3d%c",E_h[i],(i==24-1?']':','));
