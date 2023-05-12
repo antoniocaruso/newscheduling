@@ -1,5 +1,9 @@
 #include <assert.h>
 #include <math.h>
+#include <cstdint>
+
+#define DEBUG 1
+
 
 #define K 24
 #define N_ITERATION   10
@@ -209,11 +213,92 @@ void PrintParameters(void) {
   Serial.print(F("\n#----------------------------------------------\n"));
 }
 
+#ifdef CARFAGNA
+uint16_t Q[2][K*MAX_QUALITY_LVL+1] = { 0 };         // DP: Quality Table
+uint8_t  S[K][K*MAX_QUALITY_LVL+1];                  // DP: Scheduling Table 
+#else
 uint16_t Q[2][BATTERY_SAMPLING+1] = { 0 };         // DP: Quality Table
 uint8_t  S[K][BATTERY_SAMPLING+1];                  // DP: Scheduling Table 
+#endif
+
 uint8_t NS[K];                                     // Final Scheduling 
 
-//#define DEBUG 0
+#define CARFAGNA
+#ifdef CARFAGNA
+int scheduleCarfagna(uint16_t E[])
+{
+  int8_t t, idmax;
+  int16_t b, Br, Bprec;
+  int8_t k = K - 1; // start in the last slot
+  uint16_t qmax = 0, q, l, s;
+  uint16_t maxq_ps = 0; // maxQualityPreviousSlot
+  uint16_t maxq_cs = 0; // maxQualityCurrentSlot
+  
+  //  B = np.zeros((2,K*maxQ+1),dtype=np.int16) // --> Q
+  //  S = np.zeros((K,K*maxQ+1),dtype=np.int8)  // --> S
+
+  for (k = 0; k < K; k++) {
+      //printf("c: iteration %d:\n",k);
+      maxq_cs = 0;
+      if (k == 0) {
+        for (q = 0; q <= MAX_QUALITY_LVL; q++) {
+          qmax = 0; // currentBmax
+          idmax = 0;
+          for (t = 0; t < N_TASKS; t++) {
+            Br = B_INIT + E_s_mAh[0] - tasks[t].c_mAh;
+            if ((tasks[t].q_lvl == q) && (Br >= BMIN) && (Br >= qmax)) {
+              qmax = Br;
+              idmax = t + 1;
+              maxq_cs = q;
+            }
+          }
+          Q[0][q] = min(qmax, BMAX);
+          S[0][q] = idmax;
+          //if (idmax != 0) printf("Q[0][%d] = %d (%d)\n",q,min(qmax,BMAX),idmax);
+        }
+      } else {
+        for (q = 0; q <= maxq_ps + MAX_QUALITY_LVL; q++) {
+          qmax = 0;
+          idmax = 0;
+          for (t = 0; t < N_TASKS; t++) {
+            if (q < tasks[t].q_lvl) continue;
+            int Bprec = Q[(k - 1) % 2][q - tasks[t].q_lvl];
+            if (Bprec == 0) continue;
+            int Br = Bprec + E_s_mAh[k] - tasks[t].c_mAh;
+            if (q >= tasks[t].q_lvl && q-tasks[t].q_lvl <= maxq_ps && Br>=BMIN && Br>qmax)
+            {
+              qmax = Br;
+              idmax = t + 1;
+              maxq_cs = q;
+            }
+          }
+          Q[k % 2][q] = min(qmax, BMAX);
+          S[k][q] = idmax;
+          //if (idmax != 0) printf("Q[%d][%d] = %d (%d)\n",k%2,q,min(qmax,BMAX),idmax);
+        }
+      }
+      maxq_ps = maxq_cs;
+      if (maxq_ps == 0) return 0;    
+  }
+  //printf("end big loop, maxq = %d\n",maxq_ps);
+  int16_t qUpperBound = maxq_ps;
+  while((qUpperBound >= 0) && !((Q[(K-1)%2][qUpperBound] >= B_INIT) && 
+         (Q[(K-1)%2][qUpperBound] != 0)))
+        qUpperBound--;
+  q = qUpperBound;
+  //printf("end while, q = %d\n",q);
+  if (qUpperBound != -1) {
+    for(int s=K-1;s>=0;s--) {
+        NS[s] = S[s][q];
+        q -= tasks[NS[s]-1].q_lvl;
+    }
+  }
+  //printf("ns filled\n");
+  int totalq = 0;
+  for (int k=0; k<K; k++) totalq += tasks[NS[k]-1].q_perc;
+  return totalq;
+}
+#endif
 
 int schedule(uint16_t E[])
 {
@@ -281,6 +366,8 @@ int schedule(uint16_t E[])
 
 void scheduleTasks(uint16_t E[K], uint16_t Q)
 {
+#ifdef CARFAGNA
+#else
   uint16_t BresL = mah_to_level(B_INIT);
   uint16_t Bres_mAh, q = 0;
   for (i=0; i<K; i++) {
@@ -294,6 +381,7 @@ void scheduleTasks(uint16_t E[K], uint16_t Q)
   }
   assert(Bres_mAh >= B_INIT);
   assert(q == Q);
+#endif
 }
 
 
@@ -336,7 +424,11 @@ void loop() {
     ClearQS();
     // ***** Scheduling ******
     unsigned long t1 = millis();
+#ifdef CARFAGNA
+    uint16_t optQ = scheduleCarfagna(E_s_mAh);
+#else
     uint16_t optQ = schedule(E_s_mAh);
+#endif
     unsigned long t2 = millis();
 
     if (optQ != 0) {
