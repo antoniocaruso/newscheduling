@@ -2,10 +2,12 @@
 #include <math.h>
 #include <cstdint>
 
-#define DEBUG 1
-
-
+#ifndef K
 #define K 24
+#endif
+
+
+
 #define N_ITERATION   10
 #define slotDurationPercentage  (24.0/K)
 
@@ -41,7 +43,7 @@ struct Task {
     uint8_t c_mAh;
 };
 struct Task tasks[N_TASKS];
-uint8_t i;
+uint16_t i;
 
 void GenerateTasks(void)
 {
@@ -223,7 +225,6 @@ uint8_t  S[K][BATTERY_SAMPLING+1];                  // DP: Scheduling Table
 
 uint8_t NS[K];                                     // Final Scheduling 
 
-#define CARFAGNA
 #ifdef CARFAGNA
 int scheduleCarfagna(uint16_t E[])
 {
