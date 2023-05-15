@@ -228,7 +228,7 @@ int scheduleCarfagna(uint16_t E[])
 {
   int8_t t, idmax;
   int16_t b, Br, Bprec;
-  int8_t k = K - 1; // start in the last slot
+  int16_t k = K - 1; // start in the last slot
   uint16_t qmax = 0, q, l, s;
   uint16_t maxq_ps = 0; // maxQualityPreviousSlot
   uint16_t maxq_cs = 0; // maxQualityCurrentSlot
