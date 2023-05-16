@@ -46,10 +46,11 @@ if __name__ == "__main__":
     # 4.   -> parse input, check if quality is correct
 
     K,N,BMIN,BMAX,BINIT,BSAMPLING,MAX_QUALITY_LVL = [0]*7
-    c_i: list[int] = []
-    q_i: list[int] = []
-    l_i: list[int] = []
-    e_i: list[int] = []
+    #Sole (changed): c_i: list[int] = []
+    c_i = []
+    q_i = []
+    l_i = []
+    e_i = []
     it: int = 0
     Energy, Q, Time, E, S = 0,0,0,[],[]
     if len(sys.argv) == 1:
