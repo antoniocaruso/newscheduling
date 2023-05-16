@@ -3,3 +3,5 @@ main_carfagna
 main_iot
 
 *.txt
+output
+output/*.txt
