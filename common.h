@@ -1,12 +1,11 @@
 #include <assert.h>
 #include <math.h>
 #include <cstdint>
+#include <stdio.h>
 
 #ifndef K
 #define K 24
 #endif
-
-
 
 #define N_ITERATION   10
 #define slotDurationPercentage  (24.0/K)
@@ -112,7 +111,6 @@ void update_panel()
   // Change the energy production of the panel randomly
   // First it changes the production for each hour. then
   // we adapt the production to the slot size.
-  
   
   for (i=0; i<24; i++) {
     if (SUNRISE <= i && i <= SUNSET) {
@@ -230,7 +228,7 @@ int scheduleCarfagna(uint16_t E[])
 {
   int8_t t, idmax;
   int16_t b, Br, Bprec;
-  int8_t k = K - 1; // start in the last slot
+  int16_t k = K - 1; // start in the last slot
   uint16_t qmax = 0, q, l, s;
   uint16_t maxq_ps = 0; // maxQualityPreviousSlot
   uint16_t maxq_cs = 0; // maxQualityCurrentSlot
@@ -305,7 +303,7 @@ int schedule(uint16_t E[])
 {
   int8_t   t,idmax;
   int16_t  b,Br;
-  int8_t   k = K-1;       // start in the last slot
+  int16_t   k = K-1;       // start in the last slot
   uint16_t qmax = 0,q,l;
 
   #ifdef DEBUG
@@ -423,6 +421,7 @@ void loop() {
     } Serial.println("");
 
     ClearQS();
+
     // ***** Scheduling ******
     unsigned long t1 = millis();
 #ifdef CARFAGNA
@@ -431,7 +430,7 @@ void loop() {
     uint16_t optQ = schedule(E_s_mAh);
 #endif
     unsigned long t2 = millis();
-
+    
     if (optQ != 0) {
       Serial.print("Q = ");
       Serial.println(optQ);

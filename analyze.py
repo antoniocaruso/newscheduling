@@ -35,6 +35,53 @@ from scheduling import Task,iot_schedule_exact,carfagna_schedule
 
 #### main program
 
+def parse_input(lines):
+    iterations = []
+    i = 0
+    while "it,Energy" not in lines[i]: i += 1
+    if i == 0:
+        print("Error in input file.")
+        sys.exit(0)
+    # parse all variabile in input
+    com = ""
+    inside = False
+    for l in lines[0:i]:
+        if not inside and '[' in l and ']' not in l:
+           com += l 
+           inside = True
+        else:
+            if inside and ']' not in l:
+                com += l
+            elif inside and ']' in l:
+                com += l + "\n"
+            else:
+                com += l + "\n"
+    # parse iteration data
+    it: int = 0
+    Energy: int = 0
+    Q: int = 0
+    Time: int = 0
+    E,S = [],[]
+    print(f"start parsing {len(lines)} lines:")
+    inside = True
+    while True:
+        j = i+1
+        ldict = {}
+        while j<len(lines) and "it,Energy" not in lines[j]: 
+            j += 1
+        if j-i<5:
+           break 
+        exec("\n".join(lines[i:j]),globals(),ldict)
+        iterations.append({ 'it': ldict['it'], 
+                       'Energy': ldict['Energy'], 
+                       'Q': ldict['Q'], 
+                       'E': np.array(ldict['E']), 
+                       'S': np.array(ldict['S']) })
+        i = j
+    return i,com,iterations
+
+
+
 if __name__ == "__main__":
     # analyze.py console_output.txt option
     # console_output.txt -> output from Ardino serial, start with #------
@@ -53,19 +100,17 @@ if __name__ == "__main__":
     e_i = []
     it: int = 0
     Energy, Q, Time, E, S = 0,0,0,[],[]
+    
     if len(sys.argv) == 1:
         print("analyze [serialdump]")
         sys.exit()
 #   option = int(sys.argv[2]) if len(sys.argv) == 3 else 0
+    
+    # read input
     f = open(sys.argv[1],encoding="utf8")
     lines = f.read().split("\n")
-    i = 0
-    while "it,Energy" not in lines[i]: i += 1
-    if i == 0:
-        print("Error in input file.")
-        sys.exit(0)
-    # parse all variabile in input
-    exec("\n".join(lines[0:i]))
+    i,com,iterations = parse_input(lines)
+    exec(com)
     #--print header
     print("-"*20)
     print(K,N)
@@ -85,29 +130,22 @@ if __name__ == "__main__":
     print("-"*20)
 
     #-- start analysis
-    quality = 0
-    l = i
-    L = len(lines)
-    skip = 5    # lines for each iteration
-    while l < L:
-        s = "\n".join(lines[l:l+skip])
-        if s == "": break
-        exec(s)
-
+    for data in iterations:
+        it = data['it']
+        Q = data['Q']
+        Energy = data['Energy']
+        E = data['E']
+        S = data['S']
         print(f"iteration: {it}, E = {E}")
-
         (s1,quality1) = iot_schedule_exact(K,BINIT,BMIN,BMAX,E,Tasks)
         (s2,quality2) = carfagna_schedule(K,BINIT,BMIN,BMAX,MAX_QUALITY_LVL,E,Tasks)
-        
         print(f"quality input {alg_input}    =  {Q}")
         print("quality python exact      = ",quality1)
         print("quality python carfagna   = ",quality2)
-
-        print(f"S input {alg_input} = {np.array(S)}")
+        print(f"S input {alg_input} = {S}")
         print(f"S python exact    = {np.array(s1)+1}")
         print(f"S python carfagna = {np.array(s2)+1}")
-        
-        l += skip
+
 
         # do not use for now..
         # if option == 1:
