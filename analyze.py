@@ -76,7 +76,8 @@ def parse_input(lines):
                        'Energy': ldict['Energy'], 
                        'Q': ldict['Q'], 
                        'E': np.array(ldict['E']), 
-                       'S': np.array(ldict['S']) })
+                       'S': np.array(ldict['S']),
+		       'Time': np.array(ldict['Time']) })
         i = j
     return i,com,iterations
 
@@ -128,7 +129,10 @@ if __name__ == "__main__":
     for x in zip(c_i, q_i, l_i):
         Tasks.append(Task(*x))
     print("-"*20)
-
+    
+    opt_ratio1 = []
+    opt_ratio2 = []
+    execution_time1 = []
     #-- start analysis
     for data in iterations:
         it = data['it']
@@ -136,16 +140,24 @@ if __name__ == "__main__":
         Energy = data['Energy']
         E = data['E']
         S = data['S']
+	#added
+        Time = data['Time']
         print(f"iteration: {it}, E = {E}")
         (s1,quality1) = iot_schedule_exact(K,BINIT,BMIN,BMAX,E,Tasks)
         (s2,quality2) = carfagna_schedule(K,BINIT,BMIN,BMAX,MAX_QUALITY_LVL,E,Tasks)
+        
+        #-- compute averages
+        opt_ratio1.append(100*Q/quality1)
+        opt_ratio2.append(100*Q/quality2)
+        execution_time1.append(Time)
+ 
         print(f"quality input {alg_input}    =  {Q}")
         print("quality python exact      = ",quality1)
         print("quality python carfagna   = ",quality2)
         print(f"S input {alg_input} = {S}")
         print(f"S python exact    = {np.array(s1)+1}")
         print(f"S python carfagna = {np.array(s2)+1}")
-
+        print(f"Time input {alg_input}    =  {Time}")
 
         # do not use for now..
         # if option == 1:
@@ -173,3 +185,6 @@ if __name__ == "__main__":
         #     print("%2d" % (it)," ",E)
         #     (s,q) = ScheduleClassic(K,BINIT,BMIN,BMAX,E,Tasks)
         #     print("    ",S,Q,check(K,S,BINIT,BMIN,BMAX,E,Tasks),q)
+    print("Quality IoT (min,max,avg): %.3f, %.3f, %.3f" % (np.array(opt_ratio1).min(),np.array(opt_ratio1).max(),np.array(opt_ratio1).mean()))
+    print("Quality Carfagna (min,max,avg): %.3f, %.3f, %.3f" % (np.array(opt_ratio2).min(),np.array(opt_ratio2).max(),np.array(opt_ratio2).mean()))
+    print("Time (min,max,avg): %.3f, %.3f, %.3f" % (np.array(execution_time1).min(),np.array(execution_time1).max(),np.array(execution_time1).mean()))
