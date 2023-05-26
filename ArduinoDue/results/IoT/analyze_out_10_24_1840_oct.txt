@@ -1,4 +1,4 @@
-start parsing 72 lines:
+start parsing 69 lines:
 --------------------
 24 10
 160 2000 1800 1840
@@ -51,7 +51,7 @@ quality python carfagna   =  24
 S input IoT = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10  4  4  4  4  2  2  2]
 S python exact    = [10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10 10  2  2  2  4  4  4  4]
 S python carfagna = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
-Time input IoT    =  1010
+Time input IoT    =  1011
 iteration: 5, E = [  0   0   0   0   0   0   0   0  16 110 224 285 298 409 331 200 143  20
   18   7   0   0   0   0]
 quality input IoT    =  1939
@@ -99,4 +99,4 @@ S python carfagna = [1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1]
 Time input IoT    =  1010
 Quality IoT (min,max,avg): 100.000, 100.000, 100.000
 Quality Carfagna (min,max,avg): 7870.833, 8095.833, 8010.000
-Time (min,max,avg): 1010.000, 1011.000, 1010.200
+Time (min,max,avg): 1010.000, 1011.000, 1010.300

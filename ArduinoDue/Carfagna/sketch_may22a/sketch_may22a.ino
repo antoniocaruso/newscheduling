@@ -19,7 +19,7 @@
 // parameter for the precision of the classic algorithm 'with sampling'
 #define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
 // parameter for the precision of the new algorithm 
-#define MAX_QUALITY_LVL 100             // maximum = 100 (it is related to the quality as a percentage)
+#define MAX_QUALITY_LVL 1             // maximum = 100 (it is related to the quality as a percentage)
 
 #define mAh_per_lvl      ((float)(BMAX-BMIN)/BATTERY_SAMPLING)
 #define level_to_mah(l)  short(ceil((l)*(mAh_per_lvl))+BMIN) 
