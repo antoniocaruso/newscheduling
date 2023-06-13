@@ -6,7 +6,7 @@
 #define VARIATION    1
 
 
-#define K 24
+#define K 48
 #define N_ITERATION   10
 #define slotDurationPercentage  (24.0/K)
 
@@ -17,7 +17,8 @@
 #define F(a) (a)
 
 // parameter for the precision of the classic algorithm 'with sampling'
-#define BATTERY_SAMPLING  (BMAX-BMIN) // maximum = BMAX-BMIN, 1200, 800, 400, 100
+#define P   0.05
+#define BATTERY_SAMPLING  (int((BMAX-BMIN)*P)) // maximum = BMAX-BMIN, 1200, 800, 400, 100
 // parameter for the precision of the new algorithm 
 #define MAX_QUALITY_LVL 100             // maximum = 100 (it is related to the quality as a percentage)
 
