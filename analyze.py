@@ -111,7 +111,7 @@ if __name__ == "__main__":
         print("E = ", E)
         (s1,quality1) = iot_schedule_exact(K,BINIT,BMIN,BMAX,E,Tasks)
         (s2,quality2) = carfagna_schedule(K,BINIT,BMIN,BMAX,MAX_QUALITY_LVL,E,Tasks)
-        print(f"quality input {alg_input}    =\t  {Q}")
+        print(f"quality input {alg_input}    =\t  {Q} \t {Q/quality1*100: .2f}")
         print("quality python exact =\t ",quality1)
         if alg_input=='Carfana':
             print("quality python carfagna   = ",quality2)
