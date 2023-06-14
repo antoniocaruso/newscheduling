@@ -26,7 +26,7 @@
 #define MAX_QUALITY_LVL 100             // maximum = 100 (it is related to the quality as a percentage)
 
 #define mAh_per_lvl      ((float)(BMAX-BMIN)/BATTERY_SAMPLING)
-#define level_to_mah(l)  short(ceil((l)*(mAh_per_lvl))+BMIN) 
+#define level_to_mah(l)  short(round((l)*(mAh_per_lvl))+BMIN) 
 #define mah_to_level(b)  short((b-BMIN)/(mAh_per_lvl))
 
 #define SEED               124
@@ -310,6 +310,7 @@ int schedule(uint16_t E[])
   int16_t  b,Br;
   int16_t   k = K-1;       // start in the last slot
   uint16_t qmax = 0,q,l;
+  uint16_t b_init_level = mah_to_level(B_INIT);
 
   #ifdef DEBUG
       sprintf(buf,"------ k=%d ----\n",k);
@@ -331,8 +332,9 @@ int schedule(uint16_t E[])
     Q[k%2][b] = qmax;
     S[k][b] = idmax;
     #ifdef DEBUG
-      sprintf(buf,"qmax=%d, idmax=%d\n",qmax,idmax);
-      Serial.print(buf);
+      if (idmax!=0) {
+        printf("%d %d %d %d\n",b,level_to_mah(b),qmax,idmax);
+      }
     #endif
   }
 
@@ -361,6 +363,11 @@ int schedule(uint16_t E[])
       S[k][b] = idmax;
     } 
   }
+
+  #ifdef DEBUG
+    printf("init level = %d\n",mah_to_level(B_INIT));
+    printf("Q = %d\n",K%2==0?Q[K%2][mah_to_level(B_INIT)]:Q[(K+1)%2][mah_to_level(B_INIT)]);
+  #endif
 
   if (K%2 == 0)
     return Q[K%2][mah_to_level(B_INIT)];
