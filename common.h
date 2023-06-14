@@ -16,7 +16,12 @@
 
 
 // parameter for the precision of the classic algorithm 'with sampling'
+
+
+#ifndef BATTERY_SAMPLING
 #define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
+#endif
+
 // parameter for the precision of the new algorithm
 #define MAX_QUALITY_LVL 100             // maximum = 100 (it is related to the quality as a percentage)
 
