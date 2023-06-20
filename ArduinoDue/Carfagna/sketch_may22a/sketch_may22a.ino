@@ -17,16 +17,17 @@
 #define F(a) (a)
 
 // parameter for the precision of the classic algorithm 'with sampling'
+// #define P   1
 #define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
 // parameter for the precision of the new algorithm 
-#define MAX_QUALITY_LVL 1             // maximum = 100 (it is related to the quality as a percentage)
+#define MAX_QUALITY_LVL (100)             // maximum = 100 (it is related to the quality as a percentage)
 
 #define mAh_per_lvl      ((float)(BMAX-BMIN)/BATTERY_SAMPLING)
-#define level_to_mah(l)  short(ceil((l)*(mAh_per_lvl))+BMIN) 
+#define level_to_mah(l)  short(round((l)*(mAh_per_lvl))+BMIN) 
 #define mah_to_level(b)  short((b-BMIN)/(mAh_per_lvl))
 
 /**************************************** TASK MODEL *******************************/
-#define N_TASKS   10
+#define N_TASKS   100
 #define ACTIVE_SYSTEM_CONSUMPTION   124
 #define IDLE_SYSTEM_CONSUMPTION      22 // idle is higher, we must check it
 
@@ -228,6 +229,7 @@ int scheduleCarfagna(uint16_t E[])
   uint16_t qmax = 0, q, l, s;
   uint16_t maxq_ps = 0; // maxQualityPreviousSlot
   uint16_t maxq_cs = 0; // maxQualityCurrentSlot
+  uint16_t b_init_level = mah_to_level(B_INIT);
   
   for (k = 0; k < K; k++) {
       //printf("c: iteration %d:\n",k);
@@ -266,7 +268,9 @@ int scheduleCarfagna(uint16_t E[])
           }
           Q[k % 2][q] = min(qmax, BMAX);
           S[k][q] = idmax;
-          //if (idmax != 0) printf("Q[%d][%d] = %d (%d)\n",k%2,q,min(qmax,BMAX),idmax);
+          #ifdef DEBUG
+          if (idmax != 0) printf("%d %d %d %d\n",b,level_to_mah(b),qmax,idmax);
+          #endif
         }
       }
       maxq_ps = maxq_cs;
