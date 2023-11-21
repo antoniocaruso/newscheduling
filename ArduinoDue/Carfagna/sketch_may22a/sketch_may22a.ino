@@ -17,24 +17,24 @@
 #define F(a) (a)
 
 // parameter for the precision of the classic algorithm 'with sampling'
-#define P   0.05
+#define P   1
 #define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
 // parameter for the precision of the new algorithm 
-#define MAX_QUALITY_LVL (int(100*P))             // maximum = 100 (it is related to the quality as a percentage)
+#define MAX_QUALITY_LVL (int(100*P))     // maximum = 100 (it is related to the quality as a percentage)
 
 #define mAh_per_lvl      ((float)(BMAX-BMIN)/BATTERY_SAMPLING)
 #define level_to_mah(l)  short(round((l)*(mAh_per_lvl))+BMIN) 
 #define mah_to_level(b)  short((b-BMIN)/(mAh_per_lvl))
 
 /**************************************** TASK MODEL *******************************/
-#define N_TASKS   10
+#define N_TASKS   100
 #define ACTIVE_SYSTEM_CONSUMPTION   124
 #define IDLE_SYSTEM_CONSUMPTION      22 // idle is higher, we must check it
 
 struct Task {
     uint8_t q_perc;    // 1 <= q_perc <= 100%
     uint8_t q_lvl;
-    uint8_t c_mAh;
+    uint16_t c_mAh;
 };
 struct Task tasks[N_TASKS];
 
