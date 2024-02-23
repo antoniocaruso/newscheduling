@@ -6,7 +6,7 @@
 #define VARIATION    1
 
 
-#define K 24
+#define K 96
 #define N_ITERATION   10
 #define slotDurationPercentage  (24.0/K)
 
@@ -17,7 +17,7 @@
 #define F(a) (a)
 
 // parameter for the precision of the classic algorithm 'with sampling'
-#define P   1
+#define P   0.05
 #define BATTERY_SAMPLING  (BMAX-BMIN)    // maximum = BMAX-BMIN
 // parameter for the precision of the new algorithm 
 #define MAX_QUALITY_LVL (int(100*P))     // maximum = 100 (it is related to the quality as a percentage)
@@ -27,7 +27,7 @@
 #define mah_to_level(b)  short((b-BMIN)/(mAh_per_lvl))
 
 /**************************************** TASK MODEL *******************************/
-#define N_TASKS   100
+#define N_TASKS   10
 #define ACTIVE_SYSTEM_CONSUMPTION   124
 #define IDLE_SYSTEM_CONSUMPTION      22 // idle is higher, we must check it
 
